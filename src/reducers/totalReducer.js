@@ -23,7 +23,11 @@ export default (state, action) => {
                 ...state,
                 loading: false
             };
-
+        case "SET_PERMISSIONS":
+            return {
+                ...state,
+                userPermissions:action.payload
+            }
         //----- Handle Forms----------
         case "EDIT":
             if (action.payload === "user") {
@@ -56,7 +60,7 @@ export default (state, action) => {
             } else {
                 return {
                     ...state,
-                    isEditSubs:false
+                    isEditMember:false
                 };
             };
         
@@ -67,9 +71,12 @@ export default (state, action) => {
                 users: action.payload
             };
         case "SET_USER":
+            let perm = action.payload.permissions.reduce((obj,item) => 
+                Object.assign(obj,{[item.id]:item.value}),{});
             return {
                 ...state,
-                currentUser: action.payload
+                currentUser: action.payload,
+                userPermissions:perm
             };
         case "EDIT_USER":
             return {

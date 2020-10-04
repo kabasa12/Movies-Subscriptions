@@ -1,10 +1,9 @@
-import React,{useContext} from 'react';
+import React,{useContext, useState} from 'react';
 import Context from '../../context/context';
 import LogFormComp from '../Forms/LogFormComp';
 
 function LoginComp() {
   const [state,dispatch] = useContext(Context)
-
   const handleLogin = (userName,password) => {
     let index = state.users.findIndex(x => (x.userName === userName && x.password === password))
     if(index > -1){

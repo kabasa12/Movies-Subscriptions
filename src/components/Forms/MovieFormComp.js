@@ -2,9 +2,55 @@ import React,{useState,useEffect,useContext} from 'react';
 import Context from '../../context/context';
 import {useParams,useHistory} from 'react-router-dom'
 import uuid from 'react-uuid';
+import clsx from 'clsx'
+import { makeStyles } from '@material-ui/core/styles';
+import {Container,CssBaseline,TextField,Button,Typography } from '@material-ui/core';
+import 'fontsource-jolly-lodger/index.css';
+import pellet from '../../Utils/pellet';
+
+const useStyles = makeStyles((theme) => ({
+    paper: {
+        marginTop: theme.spacing(8),
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+    },
+    form: {
+        width: '100%', // Fix IE 11 issue.
+        marginTop: theme.spacing(1),
+    },
+    submit: {
+        margin: theme.spacing(3, 0, 2),
+    },
+    header:{
+        fontFamily:"Jolly Lodger",
+        letterSpacing:10
+      },
+    headerLong:{
+        fontFamily:"Jolly Lodger",
+        letterSpacing:5
+    },
+    btnPrimary:{
+        fontFamily:"Jolly Lodger",
+        letterSpacing:5,
+        color:pellet.palette.secondary.dark,
+        backgroundColor:pellet.palette.primary.light,
+        '&:hover' :{background:pellet.palette.primary.dark},
+        border:`1px solid ${pellet.palette.default.main}`
+    },
+    btnSecondary:{
+        fontFamily:"Jolly Lodger",
+        letterSpacing:5,
+        color:pellet.palette.default.main,
+        backgroundColor:pellet.palette.secondary.light,
+        '&:hover' :{background:pellet.palette.secondary.dark},
+        border:`1px solid ${pellet.palette.default.main}`
+    }
+}));
 
 const MovieFormComp = (props) => {
-    const [state,dispatch] = useContext(Context)
+    const [state,dispatch] = useContext(Context);
+    const classes = useStyles();
     const history = useHistory();
     const [inputs, setInputs] = useState({name:"",
                                           image:"",
@@ -48,7 +94,7 @@ const MovieFormComp = (props) => {
 
     const handleSubmit =(e) => {
         e.preventDefault();
-        let NewDate = new Date().getFullYear();
+        let NewDate = new Date(inputs.premiered).getFullYear();
         let id = state.isEditMovie ? movieId : uuid();    
         let preDate =  state.isEditMovie ? inputs.premiered :  NewDate;
        
@@ -64,41 +110,83 @@ const MovieFormComp = (props) => {
         returnBack();           
     }
 
-    return(
-        <div className="form-container">  
-                <div className="form-header">  
-                    {state.isEditMovie ? 
-                        <h3>Edit Movie - {state.currentMovie.name}</h3> 
-                        : <h3>Add New Movie</h3>}
-                </div>
-                <form onSubmit={handleSubmit}>
-                    <div className="form-inputs-container">
-                        <div>
-                            <label>Name :</label>
-                            <input type="text" value={inputs.name} 
-                                    name="name" onChange={handleInputChange}/>
-                        </div>
-                        <div>
-                            <label>Ganres :</label>
-                            <input type="text" value={inputs.genres} 
-                                    name="genres" onChange={handleInputChange}/>
-                        </div>
-                        <div>
-                            <label>Image Url :</label>
-                            <input type="text" value={inputs.image} 
-                                    name="image" onChange={handleInputChange}/>
-                        </div>
-                        <div>
-                            <label>Premiered :</label>
-                            <input type="text" value={inputs.premiered} 
-                                    name="premiered" onChange={handleInputChange}/>
-                        </div>
-                    </div>
-                    <button type="submit">{state.isEditMovie ? "Update": "Save"}</button>
-                    <input type="button" value="Cabcel" onClick={returnBack} />
+return state.isLogin? (
+        <Container component="div" maxWidth="xs">
+            <CssBaseline />
+            <div className={classes.paper}>
+                <Typography component="h1" variant="h5" 
+                            className={state.isEditMovie ? classes.headerLong : classes.header}>
+                    {state.isEditMovie ?
+                        "Edit Movie - " +  inputs.name :
+                        "Add New Movie"
+                    }
+                </Typography>
+                <form className={classes.form} noValidate onSubmit={handleSubmit}>
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        id="name"
+                        label="Name"
+                        name="name"
+                        autoFocus
+                        value={inputs.name}
+                        onChange={handleInputChange}
+                    />
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        name="genres"
+                        label="Genres"
+                        id="genres"
+                        value={inputs.genres}
+                        onChange={handleInputChange}
+                    />
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        name="image"
+                        label="Image Url"
+                        id="image"
+                        value={inputs.image}
+                        onChange={handleInputChange}
+                    />
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        name="premiered"
+                        label="Premiered"
+                        id="premiered"
+                        value={inputs.premiered}
+                        onChange={handleInputChange}
+                    />
+                    <Button
+                        type="submit"
+                        fullWidth
+                        variant="contained"
+                        color="primary"
+                        className={clsx(classes.submit,classes.btnPrimary)}>
+                            {state.isEditMovie ? "Update": "Save"}
+                    </Button>
+                    <Button className={classes.btnSecondary}
+                        fullWidth
+                        variant="contained"
+                        color="secondary"
+                        onClick={returnBack}>
+                            Cancel
+                    </Button>
                 </form>
-            </div> 
-    )
+            </div>
+        </Container>
+        
+    ) : <div></div>;
 }
 
 export default MovieFormComp;

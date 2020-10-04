@@ -1,14 +1,19 @@
-import React from 'react';
+import React,{useContext,useState} from 'react';
+import {useHistory} from 'react-router-dom'
 import clsx from 'clsx';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
-import {Drawer,AppBar,Toolbar,List,Typography,Divider} from '@material-ui/core';
-import {IconButton,ListItem,ListItemIcon,ListItemText} from '@material-ui/core';
+import {AppBar,Toolbar,List,Typography,Divider,Grid,SwipeableDrawer} from '@material-ui/core';
+import {IconButton,ListItem,ListItemIcon,ListItemText,CssBaseline } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
+import logo from '../../assets/images/logo.png'
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import MailIcon from '@material-ui/icons/Mail';
 import LocalMoviesIcon from '@material-ui/icons/LocalMovies';
+import SubscriptionsIcon from '@material-ui/icons/Subscriptions';
+import PeopleAltIcon from '@material-ui/icons/PeopleAlt';
+import SaveAltIcon from '@material-ui/icons/SaveAlt';
+import HighlightOffIcon from '@material-ui/icons/HighlightOff';
+import 'fontsource-jolly-lodger/index.css';
 import Context from '../../context/context';
 
 const drawerWidth = 240;
@@ -38,28 +43,11 @@ const useStyles = makeStyles((theme) => ({
   hide: {
     display: 'none',
   },
-  drawer: {
-    width: drawerWidth,
-    flexShrink: 0,
-    whiteSpace: 'nowrap',
+  list: {
+    width: 250,
   },
-  drawerOpen: {
-    width: drawerWidth,
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.enteringScreen,
-    }),
-  },
-  drawerClose: {
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    overflowX: 'hidden',
-    width: theme.spacing(7) + 1,
-    [theme.breakpoints.up('sm')]: {
-      width: theme.spacing(9) + 1,
-    },
+  fullList: {
+    width: 'auto',
   },
   toolbar: {
     display: 'flex',
@@ -69,17 +57,27 @@ const useStyles = makeStyles((theme) => ({
     // necessary for content to be below app bar
     ...theme.mixins.toolbar,
   },
+  mytoolbar:{maxHeight:"64px",
+            width:"100%",
+            backgroundColor: "#ffff00",
+            color:"#000"},
   content: {
     flexGrow: 1,
     padding: theme.spacing(3),
   },
+  header:{
+    fontFamily:"Jolly Lodger",
+    letterSpacing:2,
+    fontSize:22
+  }
 }));
 
 export default function MiniDrawer() {
   const classes = useStyles();
   const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
   const [state,dispatch] = useContext(Context);
+  const history = useHistory();
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -95,44 +93,50 @@ export default function MiniDrawer() {
     history.push('/' + name)
   };
 
+  const toggleDrawer = (open) => (event) => {
+    if (event && event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
+      return;
+    }
+
+    setOpen(open);
+  };
+
   return (
     <div className={classes.root}>
       <CssBaseline />
-      <AppBar
+      <AppBar 
         position="fixed"
         className={clsx(classes.appBar, {
           [classes.appBarShift]: open,
         })}
       >
-        <Toolbar>
+        <Toolbar className={classes.mytoolbar}>
           <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            className={clsx(classes.menuButton, {
-              [classes.hide]: open,
-            })}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap>
-            Movies Subscriptions
-          </Typography>
+                color="inherit"
+                aria-label="open drawer"
+                onClick={handleDrawerOpen}
+                edge="start"
+                className={clsx(classes.menuButton, {
+                  [classes.hide]: open,
+                })}
+              >
+                <MenuIcon />
+              </IconButton>
+              <Grid container>
+              <Typography variant="h6" noWrap>
+                Movies Subscribe
+              </Typography>
+              </Grid>
+              <Grid container style={{justifyContent:"flex-end"}}>
+                <img src={logo} alt="" />
+              </Grid>
         </Toolbar>
       </AppBar>
-      <Drawer
-        variant="permanent"
-        className={clsx(classes.drawer, {
-          [classes.drawerOpen]: open,
-          [classes.drawerClose]: !open,
-        })}
-        classes={{
-          paper: clsx({
-            [classes.drawerOpen]: open,
-            [classes.drawerClose]: !open,
-          }),
-        }}
+      <SwipeableDrawer
+        anchor="left"
+        open={open}
+        onClose={toggleDrawer(false)}
+        onOpen={toggleDrawer(true)}
       >
         <div className={classes.toolbar}>
           <IconButton onClick={handleDrawerClose}>
@@ -140,29 +144,55 @@ export default function MiniDrawer() {
           </IconButton>
         </div>
         <Divider />
-        <List>
-            {!state.isLogin ? '' :
-            <ListItem button name='movies' onClick={handleNavClick}>
-                <ListItemIcon><LocalMoviesIcon /></ListItemIcon>
-                <ListItemText primary='Movies' />
-            </ListItem>
-
-            <ListItem button name='members' onClick={handleNavClick}>
-            <ListItemIcon><LocalMoviesIcon /></ListItemIcon>
-            <ListItemText primary='Subscriptions' />
-        </ListItem>
-            }
-        </List>
-        <Divider />
-        <List>
-          {['All mail', 'Trash', 'Spam'].map((text, index) => (
-            <ListItem button key={text}>
-              <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-              <ListItemText primary={text} />
-            </ListItem>
-          ))}
-        </List>
-      </Drawer>
+        <div className={classes.list} role="presentation"
+             onClick={toggleDrawer(false)}
+             onKeyDown={toggleDrawer(false)}>
+          {!state.isLogin ? 
+          <List>
+              <ListItem button name='' onClick={handleNavClick}>
+                  <ListItemIcon><SaveAltIcon /></ListItemIcon>
+                  <ListItemText disableTypography
+                      primary={<Typography className={classes.header}>Sign In</Typography>}
+                      />
+              </ListItem>
+          </List> 
+          :
+          <List>
+              <ListItem button name='' onClick={handleNavClick}>
+                  <ListItemIcon><HighlightOffIcon /></ListItemIcon>
+                  <ListItemText disableTypography
+                      primary={<Typography className={classes.header}>Sign Out</Typography>}
+                  />
+              </ListItem>
+              {state.userPermissions.viewMovies ?
+              <ListItem button name='movies' onClick={handleNavClick}>
+                  <ListItemIcon><LocalMoviesIcon /></ListItemIcon>
+                  <ListItemText disableTypography
+                      primary={<Typography className={classes.header}>Movies</Typography>}
+                  />
+              </ListItem> : '' }
+              {state.userPermissions.viewSubscriptions ?
+              <ListItem button name='members' onClick={handleNavClick}>
+                  <ListItemIcon><SubscriptionsIcon /></ListItemIcon>
+                  <ListItemText disableTypography
+                      primary={<Typography className={classes.header}>Subscriptions</Typography>}
+                   />
+              </ListItem> : ''}
+          </List>
+          }
+          <Divider />
+          {!state.currentUser.isAdmin || !state.isLogin ? '' : 
+          <List>
+            <ListItem button name='users' onClick={handleNavClick}>
+                  <ListItemIcon><PeopleAltIcon /></ListItemIcon>
+                  <ListItemText disableTypography
+                      primary={<Typography className={classes.header}>User Management</Typography>}
+                  />
+              </ListItem>
+          </List>
+          }
+        </div>
+      </SwipeableDrawer>
     </div>
   );
 }

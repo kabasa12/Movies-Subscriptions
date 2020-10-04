@@ -19,7 +19,8 @@ const ContextProvider = (props) => {
         currentMember:{},
         subscriptions:[],
         isEditMember:false,
-        currentSubsc:{}
+        currentSubsc:{},
+        userPermissions:{}
     };
     
     const [state,dispatch] = useReducer(totalReducer,initialState)

@@ -2,9 +2,58 @@ import React,{useState,useEffect,useContext} from 'react';
 import Context from '../../context/context';
 import {useParams,useHistory} from 'react-router-dom'
 import uuid from 'react-uuid';
+import clsx from 'clsx';
+import { makeStyles } from '@material-ui/core/styles';
+import {Container,CssBaseline,TextField,Button,Typography,Divider} from '@material-ui/core';
+import {FormControlLabel,Checkbox,Grid} from '@material-ui/core';
+import BookmarkIcon from '@material-ui/icons/Bookmark';
+import BookmarkBorderIcon from '@material-ui/icons/BookmarkBorder';
+import 'fontsource-jolly-lodger/index.css';
+import pellet from '../../Utils/pellet';
+
+const useStyles = makeStyles((theme) => ({
+    paper: {
+        marginTop: theme.spacing(8),
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+    },
+    form: {
+        width: '100%', // Fix IE 11 issue.
+        marginTop: theme.spacing(1),
+    },
+    submit: {
+        margin: theme.spacing(3, 0, 2),
+    },
+    header:{
+        fontFamily:"Jolly Lodger",
+        letterSpacing:10
+      },
+    headerLong:{
+        fontFamily:"Jolly Lodger",
+        letterSpacing:5
+      },
+    btnPrimary:{
+        fontFamily:"Jolly Lodger",
+        letterSpacing:5,
+        color:pellet.palette.secondary.dark,
+        backgroundColor:pellet.palette.primary.light,
+        '&:hover' :{background:pellet.palette.primary.dark},
+        border:`1px solid ${pellet.palette.default.main}`
+    },
+    btnSecondary:{
+        fontFamily:"Jolly Lodger",
+        letterSpacing:5,
+        color:pellet.palette.default.main,
+        backgroundColor:pellet.palette.secondary.light,
+        '&:hover' :{background:pellet.palette.secondary.dark},
+        border:`1px solid ${pellet.palette.default.main}`
+    }
+}));
 
 const UserFormComp = (props) => {
-    const [state,dispatch] = useContext(Context)
+    const [state,dispatch] = useContext(Context);
+    const classes = useStyles();
     const history = useHistory();
     const [inputs, setInputs] = useState({userName:"",
                                           password:"",
@@ -18,9 +67,11 @@ const UserFormComp = (props) => {
     const [checks,setChecks] = useState({viewSubscriptions:false,
                                          createSubscriptions:false,
                                          deleteSubscriptions:false,
+                                         updateSubscriptions:false,
                                          viewMovies:false,
                                          createMovies:false,
-                                         deleteMovies:false})
+                                         deleteMovies:false,
+                                         updateMovies:false})
     
     
     let {userId} = useParams(); 
@@ -94,6 +145,9 @@ const UserFormComp = (props) => {
                                      {id:"deleteSubscriptions",
                                       name:"Delete Subscriptions",
                                       value:checks.deleteSubscriptions},
+                                     {id:"updateSubscriptions",
+                                      name:"Update Subscriptions",
+                                      value:checks.updateSubscriptions},
                                      {id:"viewMovies",
                                       name:"View Movies",
                                       value:checks.viewMovies},
@@ -102,90 +156,171 @@ const UserFormComp = (props) => {
                                       value:checks.createMovies},
                                      {id:"deleteMovies",
                                       name:"Delete Movies",
-                                      value:checks.deleteMovies}]}
+                                      value:checks.deleteMovies},
+                                     {id:"updateMovies",
+                                      name:"Update Movies",
+                                      value:checks.updateMovies}]}
 
         handleUser(newUser);
         setInputs({userName:"",password:"",
                    firstName:"",lastName:"",
                    viewSubscriptions:"",createSubscriptions:"",
-                   deleteSubscriptions:"",viewMovies:"",
-                   createMovies:"",deleteMovies:""});
+                   deleteSubscriptions:"",updateSubscriptions:"",
+                   viewMovies:"", createMovies:"",deleteMovies:"",updateMovies:""});
         returnBack();           
     }
 
-    return(
-        <div className="form-container">  
-                <div className="form-header">  
-                    {state.isEditUser ? 
-                        <h3>Edit User - {state.editedUser.firstName + " " + state.editedUser.lastName}</h3> 
-                        : <h3>Add New User</h3>}
-                </div>
-                <form onSubmit={handleSubmit}>
-                    <div className="form-inputs-container">
-                        <div>
-                            <label>First Name :</label>
-                            <input type="text" value={inputs.firstName} 
-                                    name="firstName" onChange={handleInputChange}/>
-                        </div>
-                        <div>
-                            <label>Last Name :</label>
-                            <input type="text" value={inputs.lastName} 
-                                    name="lastName" onChange={handleInputChange}/>
-                        </div>
-                        <div>
-                            <label>User Name :</label>
-                            <input type="text" value={inputs.userName} 
-                                    name="userName" onChange={handleInputChange}/>
-                        </div>
-                        <div>
-                            <label>Password :</label>
-                            <input type="text" value={inputs.password} 
-                                    name="password" onChange={handleInputChange}/>
-                        </div>
-                        <h5>Permissions :</h5>
-                        <div>
-                            <input type="checkbox" checked={checks.viewSubscriptions} 
-                                    name="viewSubscriptions" 
-                                    onChange={handleCheckChange}/>
-                            <label> View Subscriptions</label>
-                        </div>
-                        <div>
-                            <input type="checkbox" checked={checks.createSubscriptions} 
-                                    name="createSubscriptions" 
-                                    onChange={handleCheckChange}/>
-                            <label> Create Subscriptions</label>
-                        </div>
-                        <div>
-                            <input type="checkbox" checked={checks.deleteSubscriptions} 
-                                    name="deleteSubscriptions" 
-                                    onChange={handleCheckChange}/>
-                            <label> Delete Subscriptions</label>
-                        </div>
-                        <div>
-                            <input type="checkbox" checked={checks.viewMovies} 
-                                    name="viewMovies" 
-                                    onChange={handleCheckChange}/>
-                            <label> View Movies</label>
-                        </div>
-                        <div>
-                            <input type="checkbox" checked={checks.createMovies} 
-                                    name="createMovies" 
-                                    onChange={handleCheckChange}/>
-                            <label> Create Movies</label>
-                        </div>
-                        <div>
-                            <input type="checkbox" checked={checks.deleteMovies} 
-                                    name="deleteMovies" 
-                                    onChange={handleCheckChange}/>
-                            <label> Delete Movies</label>
-                        </div>
-
-                    </div>
-                    <button type="submit">{state.isEditUser ? "Update": "Save"}</button>
-                    <input type="button" value="Cabcel" onClick={returnBack} />
+    return state.isLogin? (
+            <Container component="div" maxWidth="xs">
+            <CssBaseline />
+            <div className={classes.paper}>
+                <Typography component="h1" variant="h5" 
+                            className={state.isEditUser ? classes.headerLong : classes.header}>
+                    {state.isEditUser ?
+                        "Edit User - " + state.editedUser.firstName + " " + state.editedUser.lastName :
+                        "Add New User"
+                    }
+                </Typography>
+                <form className={classes.form} noValidate onSubmit={handleSubmit}>
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        id="firstName"
+                        label="First Name"
+                        name="firstName"
+                        autoFocus
+                        value={inputs.firstName}
+                        onChange={handleInputChange}
+                    />
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        name="lastName"
+                        label="Last Name"
+                        id="lastName"
+                        value={inputs.lastName}
+                        onChange={handleInputChange}
+                    />
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        name="userName"
+                        label="User Name"
+                        id="userName"
+                        type="email"
+                        value={inputs.userName}
+                        onChange={handleInputChange}
+                    />
+                    <TextField
+                        variant="outlined"
+                        margin="normal"
+                        required
+                        fullWidth
+                        name="password"
+                        label="Password"
+                        id="password"
+                        type="password"
+                        autoComplete="current-password"
+                        value={inputs.password}
+                        onChange={handleInputChange}
+                    />
+                    <Divider />
+                    <Typography component="h2" variant="h5">
+                        Permissions
+                    </Typography>
+                    <Grid container spacing={10}>
+                        <Grid item xs={12} sm={6} md={8}>
+                            <FormControlLabel
+                                control={<Checkbox icon={<BookmarkBorderIcon />} 
+                                        checkedIcon={<BookmarkIcon />} 
+                                        name="viewSubscriptions" 
+                                        checked={checks.viewSubscriptions}
+                                        onChange={handleCheckChange}/>}
+                                label="View Subscriptions"
+                            />
+                            <FormControlLabel
+                                control={<Checkbox icon={<BookmarkBorderIcon />} 
+                                        checkedIcon={<BookmarkIcon />} 
+                                        name="createSubscriptions" 
+                                        checked={checks.createSubscriptions}
+                                        onChange={handleCheckChange}/>}
+                                label="Create Subscriptions"
+                            />
+                            <FormControlLabel
+                                control={<Checkbox icon={<BookmarkBorderIcon />} 
+                                        checkedIcon={<BookmarkIcon />} 
+                                        name="deleteSubscriptions" 
+                                        checked={checks.deleteSubscriptions}
+                                        onChange={handleCheckChange}/>}
+                                label="Delete Subscriptions" 
+                            />
+                            <FormControlLabel
+                                control={<Checkbox icon={<BookmarkBorderIcon />} 
+                                        checkedIcon={<BookmarkIcon />} 
+                                        name="updateSubscriptions" 
+                                        checked={checks.updateSubscriptions}
+                                        onChange={handleCheckChange}/>}
+                                label="Update Subscriptions" 
+                            />
+                            <FormControlLabel
+                                control={<Checkbox icon={<BookmarkBorderIcon />} 
+                                        checkedIcon={<BookmarkIcon />} 
+                                        name="viewMovies" 
+                                        checked={checks.viewMovies}
+                                        onChange={handleCheckChange}/>}
+                                label="View Movies"
+                            />
+                            <FormControlLabel
+                                control={<Checkbox icon={<BookmarkBorderIcon />} 
+                                        checkedIcon={<BookmarkIcon />} 
+                                        name="createMovies" 
+                                        checked={checks.createMovies}
+                                        onChange={handleCheckChange}/>}
+                                label="Create Movies"
+                            />
+                            <FormControlLabel
+                                control={<Checkbox icon={<BookmarkBorderIcon />} 
+                                        checkedIcon={<BookmarkIcon />} 
+                                        name="deleteMovies"
+                                        checked={checks.deleteMovies}
+                                        onChange={handleCheckChange}/>}
+                                label="Delete Movies"
+                            />
+                            <FormControlLabel
+                                control={<Checkbox icon={<BookmarkBorderIcon />} 
+                                        checkedIcon={<BookmarkIcon />} 
+                                        name="updateMovies"
+                                        checked={checks.updateMovies}
+                                        onChange={handleCheckChange}/>}
+                                label="Update Movies"
+                            />
+                        </Grid>
+                    </Grid>
+                    
+                    
+                    <Button 
+                        type="submit"
+                        fullWidth
+                        variant="contained"
+                        className={clsx(classes.submit,classes.btnPrimary)}>
+                            {state.isEditUser ? "Update": "Save"}
+                    </Button>
+                    <Button className={classes.btnSecondary}
+                        fullWidth
+                        variant="contained"
+                        onClick={returnBack}>
+                            Cancel
+                    </Button>
                 </form>
-            </div> 
-    )
+            </div>
+        </Container>
+    ) : <div></div>;
 }
 
 export default UserFormComp;
